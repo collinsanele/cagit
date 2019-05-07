@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Github Search</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <style>
+      .has-btn-centered{
+        margin-left:auto;
+        margin-right:auto;
+        }
+      #show{
+        display:none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar is-danger is-medium">
+      <div class="navbar-brand">
+        <p class="navbar-item">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS9MSvIAtkhRD-pyMzTLAGzwhTyZoH8FEyhmls4Bqjia4oocIEw">
+        </p>
+        <p class="navbar-item">
+          GitHub Searcher
+        </p>
+      </div><!--End of navbar brand-->
+    </nav>
+    <section class="section">
+      <div class="container">
+        <p class="title is-5">
+          Search GitHub Users
+        </p>
+        <p class="subtitle is-29">
+          Enter a username to fetch a user's profile and most recent repos
+        </p>
+        <div class="field">
+          <div class="control">
+            <input class="input" placeholder="Enter a Github username">
+          </div>
+        </div><!--End of field-->
+        <div id="show" class="columns is-multiline">
+          <div class="column">
+            <p class="image is-128x128">
+              <img id="p_img" src="">
+            </p><br>
+            <a id="btn" target="_blank" class="button is-link has-btn-centered">Visit</a>
+          </div>
+          <div class="column">
+            <span class="content" id="bio">
+            </span>
+          </div>
+        </div><!--End of columns-->
+        <div id="display">
+        </div>
+      </div><!--End of container-->
+  </section>
+  
+  
+  
+  
+  
+  
+  
+  <script>
+  let client_id = "90bd2bef386b3bfabe29";
+  let client_secret = "bdf74ea9c980580b402ae863eeb712e71089bc8d";
+  let result;
+  let dict = {"client_id": client_id, "client_secret":client_secret}
+  let query = document.querySelector('input');
+  query.addEventListener('keyup', process);
+  
+  function process(e){
+    //alert(e.target.value);
+    let url = `https://api.github.com/users/${query.value}`;
+    fetch(url, dict)
+    .then((res)=> res.json())
+    .then((data)=>{
+      if (query.value === ''){
+        return false;
+       }
+      document.querySelector('#show').style.display = 'block';
+      document.getElementById('p_img').src = data['avatar_url'];
+      document.getElementById('btn').href = data.html_url;
+      document.getElementById('bio').innerHTML = `<strong>Name: </strong>${data.name}<br><strong>Bio: </strong>${data.bio}
+      <br><strong>Public Repos: </strong>${data.public_repos}<br><strong>Created At: ${data.created_at}
+      <br><strong>Updated At: </strong>${data.updated_at}
+      <br><strong>Location: </strong>${data.location}
+      <br><strong>Email: </strong>${data.email}
+      <br><strong>Hireable: </strong>${data.hireable}
+      <br><strong>Following: </strong>${data.following}
+      <br><strong>Followers: ${data.followers}`;
+      let div = "<div class='columns is-multiline'>";
+      fetch(data.repos_url)
+      .then((res)=>res.json())
+      .then((data)=>{
+       data.forEach((ele)=>{
+         let col = `<div class='column is-one-third'>
+         <div class='box'>
+          <a target='_blank' href=${ele.html_url}>
+           <div class='card'>
+             <div class='card-image'>
+               <img src='${ele.owner.avatar_url}'>
+             </div>
+             <div class='card-content'>
+               <strong>Project Name: ${ele.name}</strong>
+               <br><strong>Language: ${ele.language}</strong>
+               <br><strong>Description: ${ele.description}</strong>
+               <br><span class='tag is-success'>watchers: ${ele.watchers}</span>
+               <br><span class='tag is-warning'>Star gazers count: ${ele.stargazers_count}</span>
+             </div>
+           </div>
+           </a>
+         </div>
+         </div>`
+         div+=col})
+      div+='</div>';
+      document.getElementById('display').innerHTML = div;
+      })
+      .catch((err)=>console.log(err))
+    })
+     .catch((err)=>console.log(err));
+    }
+    
+  
+  
+ 
+  </script>
+  </body>
+</html>
